@@ -35,7 +35,7 @@ const Home: React.FC = () => {
             <ul className="list-group text-center">
                 {users?.map(({ id, login, avatar_url }) => (
                     <li key={id} className="list-group-item">
-                        <img src={avatar_url} height="20" className="mr-1" />
+                        <img src={avatar_url} height="20" className="mr-1" alt={`${login}'s avatar`} />
                         <Link to={`/user/${login}`}>{login}</Link>
                     </li>
                 ))}
