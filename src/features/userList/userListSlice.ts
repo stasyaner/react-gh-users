@@ -39,6 +39,12 @@ export const fetchUserList = (): AppThunk => async (dispatch): Promise<void> => 
             "per_page": 10,
             // "since": pageNum ? (10 * (parseInt(pageNum, 10) - 1) - 1) : 0,
         };
+        // GitHub limits number of request per hour for non-authenticated users to 60
+        if (process.env.REACT_APP_GH_PERSONAL_TOKEN) {
+            reqParams.headers = {
+                authorization: `token ${process.env.REACT_APP_GH_PERSONAL_TOKEN}`,
+            };
+        }
         const res = await ghRestRequest("GET /users", reqParams);
         dispatch(pushUsers(res.data));
         if (res.headers.link) {
