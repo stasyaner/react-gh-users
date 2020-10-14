@@ -15,8 +15,10 @@ const UserList: React.FC = () => {
         <ul className="list-group text-center">
             {userList?.map(({ id, login, avatar_url }) => (
                 <li key={id} className="list-group-item">
+                    <Link to={`/user/${login}`}>
                     <img src={avatar_url} height="20" className="mr-1" alt={`${login}'s avatar`} />
-                    <Link to={`/user/${login}`}>{login}</Link>
+                    </Link>
+                    {login}
                 </li>
             ))}
         </ul>
