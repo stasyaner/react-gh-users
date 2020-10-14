@@ -40,6 +40,31 @@ const Home: React.FC = () => {
                     </li>
                 ))}
             </ul>
+            <nav
+                className="d-flex justify-content-center mt-2"
+                aria-label="Page navigation example"
+            >
+                <ul className="pagination text-center">
+                    <li className="page-item">
+                        <button className="page-link" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                            <span className="sr-only">Previous</span>
+                        </button>
+                    </li>
+                    <li className="page-item"><a className="page-link" href="/1">1</a></li>
+                    <li className="page-item"><a className="page-link" href="/2">2</a></li>
+                    <li className="page-item"><a className="page-link" href="/3">3</a></li>
+                    <li className="page-item">
+                        <button
+                            className="page-link"
+                            aria-label="Next"
+                        >
+                            <span aria-hidden="true">&raquo;</span>
+                            <span className="sr-only">Next</span>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
         </>
     );
 };
