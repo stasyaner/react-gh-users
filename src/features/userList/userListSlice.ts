@@ -4,10 +4,10 @@ import { UsersListResponseData, RequestParameters } from "@octokit/types";
 import parseLinkHeader from "parse-link-header";
 import { AppThunk, RootState } from "../../app/store";
 
-interface UserListState {
+type UserListState = {
     items: UsersListResponseData;
     isFetching: boolean;
-}
+};
 
 const initialState: UserListState = {
     items: [],
