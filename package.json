@@ -23,6 +23,7 @@
         "react-redux": "^7.2.1",
         "react-router-dom": "^5.2.0",
         "react-scripts": "3.4.3",
+        "react-toastify": "^6.0.9",
         "typescript": "^3.7.5"
     },
     "scripts": {
@@ -164,6 +165,11 @@
             ],
             "@typescript-eslint/unbound-method": 0,
             "@typescript-eslint/semi": 2,
+            "@typescript-eslint/no-unsafe-assignment": 0,
+            "@typescript-eslint/no-unsafe-call": 0,
+            "@typescript-eslint/no-unsafe-member-access": 0,
+            "@typescript-eslint/no-unsafe-return": 0,
+            "@typescript-eslint/no-use-before-define": 0,
             "import/order": 0,
             "import/extensions": 0,
             "import/no-useless-path-segments": [
