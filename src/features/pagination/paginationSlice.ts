@@ -27,8 +27,15 @@ export const paginationSlice = createSlice({
 
 export const { setPage, pushPage } = paginationSlice.actions;
 
-export const loadNextPage = (): AppThunk => (dispatch): void => {
-    dispatch(fetchUserList());
+export const loadNextPage = (): AppThunk => (dispatch, getState): void => {
+    const { userList: { items }, pagination: { currPage } } = getState();
+    const startSlice = (currPage - 1) * USERS_PER_PAGE;
+    const newItemsToShow = items.slice(startSlice, startSlice + USERS_PER_PAGE);
+    if (newItemsToShow.length > 0) {
+        dispatch(setItemsToShow(newItemsToShow));
+    } else {
+        dispatch(fetchUserList());
+    }
 };
 
 export const loadPrevPage = (): AppThunk => (dispatch, getState): void => {
