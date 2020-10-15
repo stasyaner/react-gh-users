@@ -4,6 +4,7 @@ import {
     Switch,
     Route,
 } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 import Home from "./Home";
 import User from "./User";
 
@@ -22,6 +23,7 @@ const App: React.FC = () => (
                 </Route>
             </Switch>
         </Router>
+        <ToastContainer />
     </div>
 );
 
