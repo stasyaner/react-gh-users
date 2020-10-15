@@ -1,17 +1,28 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { request as ghRestRequest } from "@octokit/request";
-import { UsersListResponseData, RequestParameters } from "@octokit/types";
+import {
+    UsersListResponseData,
+    RequestParameters,
+    OctokitResponse,
+} from "@octokit/types";
 import parseLinkHeader from "parse-link-header";
 import { AppThunk, RootState } from "../../app/store";
+import { toast } from "react-toastify";
+
+export const USERS_PER_PAGE = 10;
 
 type UserListState = {
     items: UsersListResponseData;
+    itemsToShow: UsersListResponseData;
     isFetching: boolean;
+    nextLink: string | null;
 };
 
 const initialState: UserListState = {
     items: [],
+    itemsToShow: [],
     isFetching: false,
+    nextLink: null,
 };
 
 export const userListSlice = createSlice({
@@ -21,50 +32,59 @@ export const userListSlice = createSlice({
         startFetching: (state): void => {
             state.isFetching = true;
         },
-        pushUsers: (state, action: PayloadAction<UsersListResponseData>): void => {
-            state.items = action.payload;
+        pushItems: (state, action: PayloadAction<UsersListResponseData>): void => {
+            state.items = [...state.items, ...action.payload];
         },
         stopFetching: (state): void => {
             state.isFetching = false;
         },
+        setNextLink: (state, action: PayloadAction<string | null>): void => {
+            state.nextLink = action.payload;
+        },
+        setItemsToShow: (state, action: PayloadAction<UsersListResponseData>): void => {
+            state.itemsToShow = [...action.payload];
+        },
     },
 });
 
-export const { startFetching, stopFetching, pushUsers } = userListSlice.actions;
+export const { startFetching, stopFetching, pushItems, setNextLink, setItemsToShow } = userListSlice.actions;
 
-export const fetchUserList = (): AppThunk => async (dispatch): Promise<void> => {
+export const fetchUserList = (): AppThunk => async (dispatch, getState): Promise<void> => {
     dispatch(startFetching());
-    try {
-        const reqParams: RequestParameters = {
-            "per_page": 10,
-            // "since": pageNum ? (10 * (parseInt(pageNum, 10) - 1) - 1) : 0,
+
+    let res: OctokitResponse<UsersListResponseData> | null = null;
+    const reqParams: RequestParameters = {
+        "per_page": 10,
+    };
+    // GitHub limits number of request per hour for non-authenticated users to 60
+    if (process.env.REACT_APP_GH_PERSONAL_TOKEN) {
+        reqParams.headers = {
+            authorization: `token ${process.env.REACT_APP_GH_PERSONAL_TOKEN}`,
         };
-        // GitHub limits number of request per hour for non-authenticated users to 60
-        if (process.env.REACT_APP_GH_PERSONAL_TOKEN) {
-            reqParams.headers = {
-                authorization: `token ${process.env.REACT_APP_GH_PERSONAL_TOKEN}`,
-            };
-        }
-        const res = await ghRestRequest("GET /users", reqParams);
-        dispatch(pushUsers(res.data));
-        if (res.headers.link) {
-            const linkHead = parseLinkHeader(res.headers.link);
-            console.log(linkHead);
-        }
-        // TODO: revisit when the decision on whether to use iterator or just request is made
-        /* let i = 0;
-        for await (const res of ghRequest("GET /users")) {
-            console.log(res.data);
-            i += res.data.length;
-            if (i > 100) break;
-        } */
-    } catch (e) {
-        // TODO: notify about the error
-        console.log(e.message);
     }
+
+    try {
+        const { nextLink } = getState().userList;
+        res = await ghRestRequest( (nextLink as "GET /users") ?? "GET /users", reqParams);
+    } catch (e) {
+        toast.error(e.message);
+    }
+
+    if (res?.data) {
+        dispatch(pushItems(res.data));
+        dispatch(setItemsToShow(res.data));
+    } else {
+        toast.error("Unexpected server return");
+    }
+
+    if (res?.headers?.link) {
+        const linkHeader = parseLinkHeader(res.headers.link);
+        dispatch(setNextLink(linkHeader?.next.url ?? null));
+    }
+
     dispatch(stopFetching());
 };
 
-export const selectUserList = (state: RootState): UserListState["items"] => state.userList.items;
+export const selectUserList = (state: RootState): UserListState["items"] => state.userList.itemsToShow;
 
 export default userListSlice.reducer;
