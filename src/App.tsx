@@ -14,6 +14,9 @@ const App: React.FC = () => (
                 <Route exact path="/">
                     <Home />
                 </Route>
+                <Route path="/page/:pageNum">
+                    <Home />
+                </Route>
                 <Route path="/user/:username">
                     <User />
                 </Route>
