@@ -1,11 +1,13 @@
 import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
 import userListReducer from "../features/userList/userListSlice";
 import paginationReducer from "../features/pagination/paginationSlice";
+import userDetailsReducer from "../features/userDetails/userDetails";
 
 export const store = configureStore({
     reducer: {
         userList: userListReducer,
         pagination: paginationReducer,
+        userDetails: userDetailsReducer,
     },
 });
 
