@@ -7,7 +7,7 @@ import {
     RequestParameters,
     OctokitResponse,
     UsersGetByUsernameResponseData,
-    Endpoints
+    Endpoints,
 } from "@octokit/types";
 import { AppThunk, RootState } from "../../app/store";
 import { toast } from "react-toastify";

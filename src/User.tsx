@@ -9,7 +9,7 @@ import {
 } from "react-router-dom";
 import {
     fetchUserDetails,
-    selectUserDetails
+    selectUserDetails,
 } from "./features/userDetails/userDetails";
 
 const User: React.FC = () => {
