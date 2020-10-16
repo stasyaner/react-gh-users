@@ -5,6 +5,7 @@ import {
 } from "react-redux";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import {
     loadNextPage,
     loadPage,
@@ -27,13 +28,12 @@ const Pagination: React.FC = () => {
             if (pages.indexOf(pageNum) > 0) {
                 dispatch(loadPage(pageNum));
             } else {
-                dispatch(loadNextPage());
-                dispatch(pushPage());
+                toast.info("page is way above", { autoClose: false });
+                dispatch(loadNextPage(pageNum));
             }
         } else {
             dispatch(setPage(1));
             dispatch(loadNextPage());
-            dispatch(pushPage());
         }
     }, [pageNumStr]);
 

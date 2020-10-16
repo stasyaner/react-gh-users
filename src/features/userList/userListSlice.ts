@@ -1,4 +1,8 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+    createSlice,
+    PayloadAction,
+    Action,
+} from "@reduxjs/toolkit";
 import { request as ghRestRequest } from "@octokit/request";
 import {
     UsersListResponseData,
@@ -49,7 +53,7 @@ export const userListSlice = createSlice({
 
 export const { startFetching, stopFetching, pushItems, setNextLink, setItemsToShow } = userListSlice.actions;
 
-export const fetchUserList = (): AppThunk => async (dispatch, getState): Promise<void> => {
+export const fetchUserList = (): AppThunk<Promise<Action>> => async (dispatch, getState): Promise<Action> => {
     dispatch(startFetching());
 
     let res: OctokitResponse<UsersListResponseData> | null = null;
@@ -82,7 +86,7 @@ export const fetchUserList = (): AppThunk => async (dispatch, getState): Promise
         dispatch(setNextLink(linkHeader?.next.url ?? null));
     }
 
-    dispatch(stopFetching());
+    return dispatch(stopFetching());
 };
 
 export const selectUserList = (state: RootState): UserListState["items"] => state.userList.itemsToShow;

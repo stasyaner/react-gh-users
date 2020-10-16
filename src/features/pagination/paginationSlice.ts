@@ -19,22 +19,27 @@ export const paginationSlice = createSlice({
         setPage: (state, action: PayloadAction<number>): void => {
             state.currPage = action.payload;
         },
-        pushPage: (state/* , action: PayloadAction<number> */): void => {
+        pushPage: (state): void => {
             state.pages = [...state.pages, state.currPage + 1];
+        },
+        prependPage: (state, action: PayloadAction<number>): void => {
+            state.pages = [action.payload, ...state.pages];
         },
     },
 });
 
-export const { setPage, pushPage } = paginationSlice.actions;
+export const { setPage, pushPage, prependPage } = paginationSlice.actions;
 
-export const loadNextPage = (): AppThunk => (dispatch, getState): void => {
-    const { userList: { items }, pagination: { currPage } } = getState();
-    const startSlice = (currPage - 1) * USERS_PER_PAGE;
-    const newItemsToShow = items.slice(startSlice, startSlice + USERS_PER_PAGE);
-    if (newItemsToShow.length > 0) {
-        dispatch(setItemsToShow(newItemsToShow));
-    } else {
-        dispatch(fetchUserList());
+export const loadNextPage = (pageNum?: number): AppThunk => async (dispatch, getState): Promise<void> => {
+    await dispatch(fetchUserList());
+    dispatch(pushPage());
+
+    if (!pageNum) return;
+    const { pages } = getState().pagination;
+    const numOfLoaded = pages.length;
+    for (let i = numOfLoaded; i <= (pageNum - numOfLoaded); i++) {
+        await dispatch(fetchUserList());
+        dispatch(prependPage(i));
     }
 };
 
