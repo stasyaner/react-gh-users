@@ -54,7 +54,7 @@ export const fetchUserList = (): AppThunk => async (dispatch, getState): Promise
 
     let res: OctokitResponse<UsersListResponseData> | null = null;
     const reqParams: RequestParameters = {
-        "per_page": 10,
+        "per_page": USERS_PER_PAGE,
     };
     // GitHub limits number of request per hour for non-authenticated users to 60
     if (process.env.REACT_APP_GH_PERSONAL_TOKEN) {
