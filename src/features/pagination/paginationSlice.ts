@@ -38,9 +38,9 @@ export const loadNextPage = (): AppThunk => (dispatch, getState): void => {
     }
 };
 
-export const loadPrevPage = (): AppThunk => (dispatch, getState): void => {
-    const { userList: { items }, pagination: { currPage } } = getState();
-    const startSlice = (currPage - 1) * USERS_PER_PAGE;
+export const loadPage = (pageNum: number): AppThunk => (dispatch, getState): void => {
+    const { userList: { items } } = getState();
+    const startSlice = (pageNum - 1) * USERS_PER_PAGE;
     const newItemsToShow = items.slice(startSlice, startSlice + USERS_PER_PAGE);
     dispatch(setItemsToShow(newItemsToShow));
 };

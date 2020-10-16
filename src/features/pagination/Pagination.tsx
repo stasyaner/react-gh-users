@@ -7,8 +7,7 @@ import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import {
     loadNextPage,
-    loadPrevPage,
-    pushPage,
+    loadPage,
     selectCurrPage,
     selectPages,
     setPage,
@@ -25,8 +24,8 @@ const Pagination: React.FC = () => {
         if (pageNum) {
             dispatch(setPage(pageNum));
 
-            if (pageNum < currPage) {
-                dispatch(loadPrevPage());
+            if (pages.indexOf(pageNum) > 0) {
+                dispatch(loadPage(pageNum));
             } else {
                 dispatch(loadNextPage());
                 dispatch(pushPage());
