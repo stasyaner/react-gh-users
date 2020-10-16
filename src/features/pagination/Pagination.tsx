@@ -3,11 +3,15 @@ import {
     useDispatch,
     useSelector,
 } from "react-redux";
-import { Link } from "react-router-dom";
+import {
+    Link,
+    useHistory,
+} from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import {
-    loadNextPage,
+    fetchNextPage,
+    fetchRandomPage,
     loadPage,
     selectCurrPage,
     selectPages,
@@ -15,6 +19,7 @@ import {
 } from "./paginationSlice";
 
 const Pagination: React.FC = () => {
+    const history = useHistory();
     const { pageNum: pageNumStr } = useParams<{ pageNum: string }>();
     const currPage = useSelector(selectCurrPage);
     const pages = useSelector(selectPages);
@@ -23,18 +28,45 @@ const Pagination: React.FC = () => {
     useEffect(() => {
         const pageNum = parseInt(pageNumStr, 10);
         if (pageNum) {
-            dispatch(setPage(pageNum));
-
-            if (pages.indexOf(pageNum) > 0) {
+            // just going through loaded pages
+            if (pages.indexOf(pageNum) >= 0) {
+                dispatch(setPage(pageNum));
                 dispatch(loadPage(pageNum));
-            } else {
-                toast.info("page is way above", { autoClose: false });
-                dispatch(loadNextPage(pageNum));
+            }
+            // it's just a next page or page 1 refresh
+            else if (pageNum === 1 || pages[pages.length - 1] === pageNum - 1) {
+                dispatch(setPage(pageNum));
+                dispatch(fetchNextPage());
+            }
+            // this page is not loaded
+            else {
+                toast.info((
+                    <div>
+                        This page is not loaded yet. It might take a while. <br />
+                        Do you want to load?
+                        <div className="btn-group btn-group-sm ml-2" role="group" aria-label="Decide:">
+                            <button
+                                className="btn btn-outline-light"
+                                onClick={(): void => { dispatch(fetchRandomPage(pageNum)); }}
+                            >
+                                yes
+                            </button>
+                            <button
+                                className="btn btn-outline-light"
+                                onClick={(): void => { history.push("/"); }}
+                            >
+                                no
+                            </button>
+                        </div>
+                    </div>
+                ), { autoClose: false });
             }
         } else {
             dispatch(setPage(1));
-            dispatch(loadNextPage());
+            dispatch(fetchNextPage());
         }
+    // we need the page to re-render only on pageNumStr update
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pageNumStr]);
 
     return (
@@ -81,17 +113,19 @@ const Pagination: React.FC = () => {
                     <span className="page-link">{currPage}</span>
                 </li>
                 {/* 1st after current */}
-                <li className={`page-item ${!pages[currPage] ? "disabled" : ""}`}>
-                    <Link
-                        className="page-link"
-                        aria-label="Next"
-                        to={`/page/${currPage + 1}`}
-                    >
-                        {currPage + 1}
-                    </Link>
-                </li>
-                {/* 2nd after current */}
                 {currPage + 1 <= pages.length &&
+                    <li className="page-item">
+                        <Link
+                            className="page-link"
+                            aria-label="Next"
+                            to={`/page/${currPage + 1}`}
+                        >
+                            {currPage + 1}
+                        </Link>
+                    </li>
+                }
+                {/* 2nd after current */}
+                {currPage + 2 <= pages.length &&
                     <li className="page-item">
                         <Link
                             className="page-link"
@@ -103,8 +137,7 @@ const Pagination: React.FC = () => {
                     </li>
                 }
                 {/* next */}
-                {/* TODO: change disability condition */}
-                <li className={`page-item ${false ? "disabled" : ""}`}>
+                <li className="page-item">
                     <Link
                         className="page-link"
                         aria-label="Next"

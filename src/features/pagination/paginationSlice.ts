@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { toast } from "react-toastify";
 import { AppThunk, RootState } from "../../app/store";
 import { fetchUserList, setItemsToShow, USERS_PER_PAGE } from "../userList/userListSlice";
 
@@ -19,27 +20,32 @@ export const paginationSlice = createSlice({
         setPage: (state, action: PayloadAction<number>): void => {
             state.currPage = action.payload;
         },
-        pushPage: (state): void => {
-            state.pages = [...state.pages, state.currPage + 1];
+        pushCurrPage: (state): void => {
+            state.pages = [...state.pages, state.currPage];
         },
-        prependPage: (state, action: PayloadAction<number>): void => {
-            state.pages = [action.payload, ...state.pages];
+        pushPage: (state, action: PayloadAction<number>): void => {
+            state.pages = [...state.pages, action.payload];
         },
     },
 });
 
-export const { setPage, pushPage, prependPage } = paginationSlice.actions;
+export const { setPage, pushPage, pushCurrPage } = paginationSlice.actions;
 
-export const loadNextPage = (pageNum?: number): AppThunk => async (dispatch, getState): Promise<void> => {
+export const fetchNextPage = (): AppThunk => async (dispatch): Promise<void> => {
     await dispatch(fetchUserList());
-    dispatch(pushPage());
+    dispatch(pushCurrPage());
+};
 
-    if (!pageNum) return;
-    const { pages } = getState().pagination;
-    const numOfLoaded = pages.length;
-    for (let i = numOfLoaded; i <= (pageNum - numOfLoaded); i++) {
+export const fetchRandomPage = (pageNum: number): AppThunk => async (dispatch): Promise<void> => {
+    for (let i = 0; i < pageNum; i++) {
+        // if page is loading longer than a second
+        const showLoadingTimer = setTimeout(() => {
+            toast.info(`Loading page ${i + 1}`, { pauseOnFocusLoss: false });
+        }, 1000);
         await dispatch(fetchUserList());
-        dispatch(prependPage(i));
+        clearTimeout(showLoadingTimer);
+        dispatch(pushPage(i + 1));
+        dispatch(setPage(i + 1));
     }
 };
 
